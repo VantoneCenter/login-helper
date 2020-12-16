@@ -1,0 +1,39 @@
+body {
+  width: 300px;
+  height: 250px;
+}
+
+.login-helper-container {
+  width: 100%;
+  padding: 20px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-44%, -50%);
+}
+
+.content-container {
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  .form-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    
+    label {
+      display: inline-block;
+      width: 82px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: left;
+      float: left;
+      padding-right: 8px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+  }
+}

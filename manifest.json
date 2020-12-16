@@ -1,0 +1,36 @@
+{
+  "name": "Login Helper",
+  "version": "0.1",
+  "description": "Login helper chrome extension for yeepay",
+  "permissions": [
+    "storage",
+    "tabs",
+    "http://*/",
+    "https://*/"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+  "browser_action": {
+    "default_popup": "popup/index.html"
+  },
+  "icons": {
+    "16": "images/icon_gray.png",
+    "32": "images/icon_gray.png",
+    "48": "images/icon_gray.png",
+    "128": "images/icon_gray.png"
+  },
+  "manifest_version": 2,
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["./content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources": [
+    "pageScripts/main.js"
+  ]
+}
