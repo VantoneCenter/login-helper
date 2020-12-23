@@ -1,44 +1,49 @@
 
 // 命名空间
-let ajax_interceptor_qoweifjqon = {
+let ajax_interceptor_angusyang9 = {
   settings: {
-    ajaxInterceptor_switchOn: false,
-    ajaxInterceptor_rules: [],
+    loginHelper_switchOn: false,
+    loginHelper_rules: [],
   },
   originalXHR: window.XMLHttpRequest,
   myXHR: function() {
     let pageScriptEventDispatched = false;
     const modifyResponse = () => {
-      ajax_interceptor_qoweifjqon.settings.ajaxInterceptor_rules.forEach(({filterType = 'normal', switchOn = true, match, overrideTxt = ''}) => {
+      ajax_interceptor_angusyang9.settings.loginHelper_rules.forEach(({responseTokenKey = 'token', match}) => {
         let matched = false;
-        if (switchOn && match) {
-          if (filterType === 'normal' && this.responseURL.indexOf(match) > -1) {
-            matched = true;
-          } else if (filterType === 'regex' && this.responseURL.match(new RegExp(match, 'i'))) {
+        if (match) {
+          if (this.responseURL.indexOf(match) > -1) {
             matched = true;
           }
         }
         if (matched) {
-          this.responseText = overrideTxt;
-          this.response = overrideTxt;
-          
           if (!pageScriptEventDispatched) {
-            window.dispatchEvent(new CustomEvent("pageScript", {
-              detail: {url: this.responseURL, match}
-            }));
-            pageScriptEventDispatched = true;
+            const response = JSON.parse(this.responseText)
+            let token = response
+            const tokenKeyArr = responseTokenKey.split('.')
+            tokenKeyArr.forEach(_ => {
+              token = token ? token[_] : null
+            })
+            if (token) {
+              this.responseText = JSON.stringify({ code: '000000', message: 'response modified by chrome extension: loginHelper' })
+              this.response = JSON.stringify({ code: '000000', message: 'response modified by chrome extension: loginHelper' })
+              window.dispatchEvent(new CustomEvent("xhr", {
+                detail: {url: this.responseURL, match, token}
+              }));
+              pageScriptEventDispatched = true;
+            }
           }
         }
       })
     }
     
-    const xhr = new ajax_interceptor_qoweifjqon.originalXHR;
+    const xhr = new ajax_interceptor_angusyang9.originalXHR;
     for (let attr in xhr) {
       if (attr === 'onreadystatechange') {
         xhr.onreadystatechange = (...args) => {
           if (this.readyState == 4) {
             // 请求成功
-            if (ajax_interceptor_qoweifjqon.settings.ajaxInterceptor_switchOn) {
+            if (ajax_interceptor_angusyang9.settings.loginHelper_switchOn) {
               // 开启拦截
               modifyResponse();
             }
@@ -49,7 +54,7 @@ let ajax_interceptor_qoweifjqon = {
       } else if (attr === 'onload') {
         xhr.onload = (...args) => {
           // 请求成功
-          if (ajax_interceptor_qoweifjqon.settings.ajaxInterceptor_switchOn) {
+          if (ajax_interceptor_angusyang9.settings.loginHelper_switchOn) {
             // 开启拦截
             modifyResponse();
           }
@@ -81,9 +86,9 @@ let ajax_interceptor_qoweifjqon = {
 
   originalFetch: window.fetch.bind(window),
   myFetch: function(...args) {
-    return ajax_interceptor_qoweifjqon.originalFetch(...args).then((response) => {
+    return ajax_interceptor_angusyang9.originalFetch(...args).then((response) => {
       let txt = undefined;
-      ajax_interceptor_qoweifjqon.settings.ajaxInterceptor_rules.forEach(({filterType = 'normal', switchOn = true, match, overrideTxt = ''}) => {
+      ajax_interceptor_angusyang9.settings.loginHelper_rules.forEach(({filterType = 'normal', switchOn = true, match, overrideTxt = ''}) => {
         let matched = false;
         if (switchOn && match) {
           if (filterType === 'normal' && response.url.indexOf(match) > -1) {
@@ -152,15 +157,15 @@ let ajax_interceptor_qoweifjqon = {
 window.addEventListener("message", function(event) {
   const data = event.data;
 
-  if (data.type === 'ajaxInterceptor' && data.to === 'pageScript') {
-    ajax_interceptor_qoweifjqon.settings[data.key] = data.value;
+  if (data.type === 'ajaxInterceptor' && data.to === 'xhr') {
+    ajax_interceptor_angusyang9.settings[data.key] = data.value;
   }
 
-  if (ajax_interceptor_qoweifjqon.settings.ajaxInterceptor_switchOn) {
-    window.XMLHttpRequest = ajax_interceptor_qoweifjqon.myXHR;
-    window.fetch = ajax_interceptor_qoweifjqon.myFetch;
+  if (ajax_interceptor_angusyang9.settings.loginHelper_switchOn) {
+    window.XMLHttpRequest = ajax_interceptor_angusyang9.myXHR;
+    window.fetch = ajax_interceptor_angusyang9.myFetch;
   } else {
-    window.XMLHttpRequest = ajax_interceptor_qoweifjqon.originalXHR;
-    window.fetch = ajax_interceptor_qoweifjqon.originalFetch;
+    window.XMLHttpRequest = ajax_interceptor_angusyang9.originalXHR;
+    window.fetch = ajax_interceptor_angusyang9.originalFetch;
   }
 }, false);
