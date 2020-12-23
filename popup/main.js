@@ -93,44 +93,42 @@ export default class Main extends Component {
   render() {
     return (
       <div className="login-helper-container">
-        <img src="https://img.imyangyong.com/yeepay/logo-ued.svg" width="80px" />
         <div className="content-container">
           <Switch
-            style={{marginBottom: '20px'}}
             defaultChecked={window.setting.loginHelper_switchOn}
             onChange={this.handleSwitchChange}
           />
-          {!this.state.logged ? <div>
-              <div className="form-item">
-                <label>用户名:</label>
-                <Input defaultValue={this.state.userInfo.name} placeholder="请输入用户名" onChange={this.changeUserName}/>
-              </div>
-              <div className="form-item">
-                <label>密码:</label>
-                <Input defaultValue={this.state.userInfo.password} placeholder="请输入密码" type="password"
-                       onChange={this.changePassword}/>
-              </div>
-              <div style={{ textAlign: 'center' }}>
-                <Button
-                  type="primary"
-                  size="small"
-                  onClick={e => this.handleClickSave()}
-                >保存</Button>
-              </div>
-            </div>
-            : <div>
-              <div className="form-item" style={{height: '100px'}}>
-                <span>当前用户:</span>
-                <span>{this.state.userInfo.name}</span>
-                <Button
-                  style={{marginLeft: '20px'}}
-                  type="text"
-                  size="small"
-                  onClick={e => this.handleClickLogout()}
-                >注销</Button>
-              </div>
-            </div>
-          }
+          {/*{!this.state.logged ? <div>*/}
+          {/*    <div className="form-item">*/}
+          {/*      <label>用户名:</label>*/}
+          {/*      <Input defaultValue={this.state.userInfo.name} placeholder="请输入用户名" onChange={this.changeUserName}/>*/}
+          {/*    </div>*/}
+          {/*    <div className="form-item">*/}
+          {/*      <label>密码:</label>*/}
+          {/*      <Input defaultValue={this.state.userInfo.password} placeholder="请输入密码" type="password"*/}
+          {/*             onChange={this.changePassword}/>*/}
+          {/*    </div>*/}
+          {/*    <div style={{ textAlign: 'center' }}>*/}
+          {/*      <Button*/}
+          {/*        type="primary"*/}
+          {/*        size="small"*/}
+          {/*        onClick={e => this.handleClickSave()}*/}
+          {/*      >保存</Button>*/}
+          {/*    </div>*/}
+          {/*  </div>*/}
+          {/*  : <div>*/}
+          {/*    <div className="form-item" style={{height: '98px'}}>*/}
+          {/*      <span>当前用户:</span>*/}
+          {/*      <span>{this.state.userInfo.name}</span>*/}
+          {/*      <Button*/}
+          {/*        style={{marginLeft: '20px'}}*/}
+          {/*        type="text"*/}
+          {/*        size="small"*/}
+          {/*        onClick={e => this.handleClickLogout()}*/}
+          {/*      >注销</Button>*/}
+          {/*    </div>*/}
+          {/*  </div>*/}
+          {/*}*/}
         </div>
       </div>
     );
