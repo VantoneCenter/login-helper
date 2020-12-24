@@ -18,9 +18,17 @@ script.addEventListener('load', () => {
     if (result.hasOwnProperty('loginHelper_switchOn')) {
       postMessage({type: 'ajaxInterceptor', to: 'xhr', key: 'loginHelper_switchOn', value: result.loginHelper_switchOn});
       postMessage({type: 'ajaxInterceptor', to: 'xhr', key: 'loginHelper_rules', value: MONITOR_RULES});
+      loginBtnReplace(result.loginHelper_switchOn)
     }
   });
 });
+
+let documentReadied = false
+document.onreadystatechange = () => {
+  if (document.readyState === 'complete') {
+    documentReadied = true
+  }
+}
 
 function getUrlParams(key) {
   const originArr = window.location.href.split('?')
@@ -32,6 +40,32 @@ function getUrlParams(key) {
       }
     }
   }
+}
+
+/**
+ * method 替换登录按钮.
+ */
+function loginBtnReplace(switchOn = false) {
+  if (documentReadied) {
+    const submitBtn = document.querySelectorAll('button.submit')[0]
+    if (submitBtn.firstChild) {
+      submitBtn.firstChild.textContent = switchOn? '开发者登录' : '登 录'
+    } else {
+      submitBtn.textContent = switchOn ? '开发者登录' : '登 录'
+    }
+  } else {
+    let count = 0;
+    const checktLoadedInterval = setInterval(() => {
+      if (documentReadied) {
+        clearInterval(checktLoadedInterval);
+        loginBtnReplace(switchOn)
+      }
+      if (count ++ > 500) {
+        clearInterval(checktLoadedInterval);
+      }
+    }, 10);
+  }
+  
 }
 
 // 接收pageScript传来的信息
@@ -49,6 +83,9 @@ window.addEventListener("xhr", function(event) {
 chrome.runtime.onMessage.addListener(msg => {
   if (msg.type === 'loginHelper' && msg.to === 'content') {
     postMessage({...msg, type: 'ajaxInterceptor', to: 'xhr'});
+    if (msg.key === 'loginHelper_switchOn') {
+      loginBtnReplace(msg.value)
+    }
   }
 });
 
