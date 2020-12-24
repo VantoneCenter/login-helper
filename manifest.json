@@ -31,6 +31,7 @@
     }
   ],
   "web_accessible_resources": [
-    "pageScripts/xhr.js"
+    "pageScripts/xhr.js",
+    "pageScripts/authCode.js"
   ]
 }

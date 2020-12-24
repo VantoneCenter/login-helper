@@ -1,8 +1,12 @@
 // 在页面上插入代码
-const script = document.createElement('script');
-script.setAttribute('type', 'text/javascript');
-script.setAttribute('src', chrome.extension.getURL('pageScripts/xhr.js'));
-document.documentElement.appendChild(script);
+const scriptXhr = document.createElement('script');
+scriptXhr.setAttribute('type', 'text/javascript');
+scriptXhr.setAttribute('src', chrome.extension.getURL('pageScripts/xhr.js'));
+document.documentElement.appendChild(scriptXhr);
+const scriptAuthCode = document.createElement('script');
+scriptAuthCode.setAttribute('type', 'text/javascript');
+scriptAuthCode.setAttribute('src', chrome.extension.getURL('pageScripts/authCode.js'));
+document.documentElement.appendChild(scriptAuthCode);
 
 const MONITOR_RULES = [
   {
@@ -13,17 +17,34 @@ const MONITOR_RULES = [
   }
 ]
 
-script.addEventListener('load', () => {
-  chrome.storage.local.get(['loginHelper_switchOn'], (result) => {
+scriptXhr.addEventListener('load', () => {
+  chrome.storage.local.get(['loginHelper_switchOn', 'loginHelper_userInfo'], (result) => {
     if (result.hasOwnProperty('loginHelper_switchOn')) {
       postMessage({
-        type: 'ajaxInterceptor',
+        type: 'pageScripts',
         to: 'xhr',
         key: 'loginHelper_switchOn',
         value: result.loginHelper_switchOn
       });
-      postMessage({type: 'ajaxInterceptor', to: 'xhr', key: 'loginHelper_rules', value: MONITOR_RULES});
-      loginBtnReplace(result.loginHelper_switchOn)
+      postMessage({
+        type: 'pageScripts',
+        to: 'xhr',
+        key: 'loginHelper_rules',
+        value: MONITOR_RULES
+      });
+      postMessage({
+        type: 'pageScripts',
+        to: 'authCode',
+        key: 'loginHelper_switchOn',
+        value: result.loginHelper_switchOn
+      });
+      postMessage({
+        type: 'pageScripts',
+        to: 'authCode',
+        key: 'loginHelper_userInfo',
+        value: result.loginHelper_userInfo
+      });
+      loginBtnReplace(result.loginHelper_switchOn);
     }
   });
 });
@@ -60,18 +81,36 @@ function loginBtnReplace(switchOn = false) {
       } else {
         submitBtn.textContent = switchOn ? '开发者登录' : '登 录'
       }
+      listenAuthCodeAction()
     } else {
       let count = 0;
       const checktLoadedInterval = setInterval(() => {
         if (documentReadied) {
           clearInterval(checktLoadedInterval);
           loginBtnReplace(switchOn)
+          listenAuthCodeAction()
         }
         if (count++ > 500) {
           clearInterval(checktLoadedInterval);
         }
       }, 10);
     }
+  }
+}
+
+let authCodeListened = false
+function listenAuthCodeAction() {
+  const inputList = document.querySelectorAll('.input-box')
+  if (!authCodeListened) {
+    inputList[3].lastChild.addEventListener('click', function () {
+      postMessage({
+        type: 'pageScripts',
+        to: 'authCode',
+        key: 'askForAuthCode',
+        value: true
+      });
+    }, false)
+    authCodeListened = true
   }
 }
 
@@ -89,7 +128,7 @@ window.addEventListener('xhr', function (event) {
 // 接收background.js传来的信息，转发给 xhr
 chrome.runtime.onMessage.addListener(msg => {
   if (msg.type === 'loginHelper' && msg.to === 'content') {
-    postMessage({...msg, type: 'ajaxInterceptor', to: 'xhr'});
+    postMessage({...msg, type: 'pageScripts', to: 'xhr'});
     if (msg.key === 'loginHelper_switchOn') {
       loginBtnReplace(msg.value)
     }

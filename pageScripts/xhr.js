@@ -157,7 +157,7 @@ let ajax_interceptor_angusyang9 = {
 window.addEventListener("message", function(event) {
   const data = event.data;
 
-  if (data.type === 'ajaxInterceptor' && data.to === 'xhr') {
+  if (data.type === 'pageScripts' && data.to === 'xhr') {
     ajax_interceptor_angusyang9.settings[data.key] = data.value;
   }
 
