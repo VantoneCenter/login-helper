@@ -16,7 +16,12 @@ const MONITOR_RULES = [
 script.addEventListener('load', () => {
   chrome.storage.local.get(['loginHelper_switchOn'], (result) => {
     if (result.hasOwnProperty('loginHelper_switchOn')) {
-      postMessage({type: 'ajaxInterceptor', to: 'xhr', key: 'loginHelper_switchOn', value: result.loginHelper_switchOn});
+      postMessage({
+        type: 'ajaxInterceptor',
+        to: 'xhr',
+        key: 'loginHelper_switchOn',
+        value: result.loginHelper_switchOn
+      });
       postMessage({type: 'ajaxInterceptor', to: 'xhr', key: 'loginHelper_rules', value: MONITOR_RULES});
       loginBtnReplace(result.loginHelper_switchOn)
     }
@@ -46,31 +51,33 @@ function getUrlParams(key) {
  * method 替换登录按钮.
  */
 function loginBtnReplace(switchOn = false) {
-  if (documentReadied) {
-    const submitBtn = document.querySelectorAll('button.submit')[0]
-    if (submitBtn.firstChild) {
-      submitBtn.firstChild.textContent = switchOn? '开发者登录' : '登 录'
+  const url = window.location.href
+  if (url.includes('https://qamp.yeepay.com/mp-auth')) {
+    if (documentReadied) {
+      const submitBtn = document.querySelectorAll('button.submit')[0]
+      if (submitBtn.firstChild) {
+        submitBtn.firstChild.textContent = switchOn ? '开发者登录' : '登 录'
+      } else {
+        submitBtn.textContent = switchOn ? '开发者登录' : '登 录'
+      }
     } else {
-      submitBtn.textContent = switchOn ? '开发者登录' : '登 录'
+      let count = 0;
+      const checktLoadedInterval = setInterval(() => {
+        if (documentReadied) {
+          clearInterval(checktLoadedInterval);
+          loginBtnReplace(switchOn)
+        }
+        if (count++ > 500) {
+          clearInterval(checktLoadedInterval);
+        }
+      }, 10);
     }
-  } else {
-    let count = 0;
-    const checktLoadedInterval = setInterval(() => {
-      if (documentReadied) {
-        clearInterval(checktLoadedInterval);
-        loginBtnReplace(switchOn)
-      }
-      if (count ++ > 500) {
-        clearInterval(checktLoadedInterval);
-      }
-    }, 10);
   }
-  
 }
 
 // 接收pageScript传来的信息
-window.addEventListener("xhr", function(event) {
-  const { match, token } = event.detail
+window.addEventListener('xhr', function (event) {
+  const {match, token} = event.detail
   MONITOR_RULES.forEach(_ => {
     if (match === _.match) {
       const callback = getUrlParams(_.callbackKey)
