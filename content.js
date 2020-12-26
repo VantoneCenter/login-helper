@@ -98,23 +98,43 @@ function loginBtnReplace(switchOn = false) {
   }
 }
 
+function getPhoneNumber() {
+  return new Promise(resolve => {
+    // TODO resolve phone number
+    resolve('185****5444')
+    // let count = 0;
+    // const checktLoadedInterval = setInterval(() => {
+    //   // find phone dom
+    //   if (documentReadied) {
+    //     clearInterval(checktLoadedInterval);
+    //     resolve(phone)
+    //   }
+    //   if (count++ > 500) {
+    //     clearInterval(checktLoadedInterval);
+    //   }
+    // }, 10);
+  })
+}
+
 let authCodeListened = false
 function listenAuthCodeAction() {
   const inputList = document.querySelectorAll('.input-box')
   if (!authCodeListened) {
     inputList[3].lastChild.addEventListener('click', function () {
-      postMessage({
-        type: 'pageScripts',
-        to: 'authCode',
-        key: 'askForAuthCode',
-        value: true
-      });
+      getPhoneNumber().then(phone => {
+        postMessage({
+          type: 'pageScripts',
+          to: 'authCode',
+          key: 'phone',
+          value: phone
+        });
+      })
     }, false)
     authCodeListened = true
   }
 }
 
-// 接收pageScript传来的信息
+// 接收pageScript xhr传来的信息
 window.addEventListener('xhr', function (event) {
   const {match, token} = event.detail
   MONITOR_RULES.forEach(_ => {
@@ -123,6 +143,14 @@ window.addEventListener('xhr', function (event) {
       window.location.href = callback + '?' + _.tokenKey + '=' + token
     }
   })
+}, false);
+
+// 接收pageScript authCode传来的信息
+window.addEventListener('authCode', function (event) {
+  const { authCode } = event.detail
+  const inputList = document.querySelectorAll('.input-box')
+  // TODO 设置 authcode
+  console.log('成功了:', authCode)
 }, false);
 
 // 接收background.js传来的信息，转发给 xhr
