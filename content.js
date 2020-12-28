@@ -100,19 +100,18 @@ function loginBtnReplace(switchOn = false) {
 
 function getPhoneNumber() {
   return new Promise(resolve => {
-    // TODO resolve phone number
-    resolve('185****5444')
-    // let count = 0;
-    // const checktLoadedInterval = setInterval(() => {
-    //   // find phone dom
-    //   if (documentReadied) {
-    //     clearInterval(checktLoadedInterval);
-    //     resolve(phone)
-    //   }
-    //   if (count++ > 500) {
-    //     clearInterval(checktLoadedInterval);
-    //   }
-    // }, 10);
+    let count = 0;
+    const checktPhoneDomInterval = setInterval(() => {
+      const phoneDom = document.querySelectorAll('.send-phone')[0]
+      if (phoneDom) {
+        clearInterval(checktPhoneDomInterval);
+        const phone = phoneDom.textContent.match(/\d{3}\*\*\*\*\d{4}/)[0]
+        resolve(phone)
+      }
+      if (count++ > 500) {
+        clearInterval(checktPhoneDomInterval);
+      }
+    }, 10);
   })
 }
 
@@ -121,6 +120,12 @@ function listenAuthCodeAction() {
   const inputList = document.querySelectorAll('.input-box')
   if (!authCodeListened) {
     inputList[3].lastChild.addEventListener('click', function () {
+      // const inputList = document.querySelectorAll('.input-box')
+      // const authCodeDom = inputList[3].firstChild.firstChild.children[1]
+      // authCodeDom.focus()
+      // setTimeout(function () {
+      //   authCodeDom.setAttribute('value', '3123')
+      // }, 500)
       getPhoneNumber().then(phone => {
         postMessage({
           type: 'pageScripts',
@@ -149,8 +154,12 @@ window.addEventListener('xhr', function (event) {
 window.addEventListener('authCode', function (event) {
   const { authCode } = event.detail
   const inputList = document.querySelectorAll('.input-box')
-  // TODO 设置 authcode
-  console.log('成功了:', authCode)
+  const authCodeDom = inputList[3].firstChild.firstChild.children[1]
+  authCodeDom.focus()
+  const evt = document.createEvent('HtmlEvents')
+  evt.initEvent('input', true, true)
+  authCodeDom.value = authCode || '未查询到验证码'
+  authCodeDom.dispatchEvent(evt)
 }, false);
 
 // 接收background.js传来的信息，转发给 xhr

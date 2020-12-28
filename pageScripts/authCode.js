@@ -105,7 +105,7 @@ let authCode_angusyang9 = {
         if (xhr.status === 200) {
           const response = xhr.responseText
           const phone = self.settings.phone.replace(/\*/g, '\\*')
-          const reg = new RegExp(phone + '[\\s\\S]+?验证码：(\\d{6})')
+          const reg = new RegExp(phone + '[\\s\\S]+?验证码(\\d{6})')
           const authCodeArr = response.match(reg)
           if (authCodeArr.length >= 2) {
             window.dispatchEvent(new CustomEvent("authCode", {
@@ -126,12 +126,6 @@ let authCode_angusyang9 = {
     xhr.send();
   }
 }
-
-// TODO 删除
-setTimeout(() => {
-  authCode_angusyang9.settings.phone = '184****9775';
-  // authCode_angusyang9.login()
-}, 1000)
 
 window.addEventListener("message", function(event) {
   const data = event.data;
