@@ -4,7 +4,7 @@
 
 ---
 
-Login helper chrome extension for yeepay
+Login helper chrome extension for yeepay merchant system
 
 ## 使用说明
 
