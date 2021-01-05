@@ -46,4 +46,3 @@ Login helper chrome extension for yeepay merchant system
     }
 }
 ```
-
