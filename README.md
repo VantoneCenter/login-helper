@@ -42,7 +42,7 @@ Login helper chrome extension for yeepay
       add_header 'Access-Control-Expose-Headers' '*';
       add_header 'Access-Control-Allow-Headers' '*';
       proxy_set_header 'Cookie' '$http_loginhelpercookie';
-      proxy_pass http://ycetest.yeepay.com:30130/notifier-boss/order/list;
+      proxy_pass http://ycetest.yeepay.com:30130/notifier-boss/invoke_record/list;
     }
 }
 ```
