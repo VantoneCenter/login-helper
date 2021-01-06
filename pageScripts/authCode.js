@@ -53,7 +53,9 @@ let authCode_angusyang9 = {
   },
   today: function() {
     const now = new Date();
-    return now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate()
+    const month = now.getMonth() + 1 <= 9 ? '0' + (now.getMonth() + 1) : now.getMonth() + 1
+    const date = now.getDate() <= 9 ? '0' + now.getDate() : now.getDate()
+    return now.getFullYear() + '-' + month + '-' + date
   },
   login: function () {
     const xhr = new XMLHttpRequest();
