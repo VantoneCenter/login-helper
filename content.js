@@ -53,7 +53,79 @@ let documentReadied = false
 document.onreadystatechange = () => {
   if (document.readyState === 'complete') {
     documentReadied = true
+    chrome.storage.local.get(['loginHelper_switchOn'], (result) => {
+      if (result.hasOwnProperty('loginHelper_switchOn') && result.loginHelper_switchOn
+      && window.location.href.includes('https://qamp.yeepay.com/mp-auth')) {
+        listenCaptchaImg()
+      }
+    })
   }
+}
+
+// base64 to blob
+function dataURItoBlob(dataURI) {
+  var mimeString = dataURI
+    .split(',')[0]
+    .split(':')[1]
+    .split(';')[0] // mime类型
+  var byteString = atob(dataURI.split(',')[1]) //base64 解码
+  var arrayBuffer = new ArrayBuffer(byteString.length) //创建ArrayBuffer
+  var intArray = new Uint8Array(arrayBuffer) //创建视图
+  for (var i = 0; i < byteString.length; i++) {
+    intArray[i] = byteString.charCodeAt(i)
+  }
+  return new Blob([intArray], { type: mimeString }) // 转成 blob
+}
+
+function listenCaptchaImg() {
+  // captcha img
+  const img = document.querySelector('.captcha');
+  img.click(); // reload img because can't catch img info first time
+  img.addEventListener('load', function (event) {
+    const dataUrl = getDataUrl(event.currentTarget);
+    const xhr = new XMLHttpRequest();
+    const self = this;
+    const form = new FormData()
+    form.append('captcha', dataURItoBlob(dataUrl))
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText);
+          if (response.status === 1 && response.request) {
+            const inputList = document.querySelectorAll('.input-box')
+            const captchaDom = inputList[2].firstChild.firstChild.children[1]
+            captchaDom.focus()
+            const evt = document.createEvent('HtmlEvents')
+            evt.initEvent('input', true, true)
+            captchaDom.value = response.request
+            captchaDom.dispatchEvent(evt)
+            // focus 短信验证码
+            const authCodeDom = inputList[3].firstChild.firstChild.children[1]
+            authCodeDom.focus()
+            authCodeDom.dispatchEvent(evt)
+          }
+        } else {
+          console.log('There was a problem with the request.');
+        }
+      } else {
+        // console.log('still not ready...');
+      }
+    }
+    xhr.open('post', 'http://www.imyangyong.com:3005', true);
+    xhr.send(form);
+  });
+}
+
+function getDataUrl(img) {
+  // Create canvas
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  // Set width and height
+  canvas.width = img.width;
+  canvas.height = img.height;
+  // Draw the image
+  ctx.drawImage(img, 0, 0);
+  return canvas.toDataURL('image/jpeg');
 }
 
 function getUrlParams(key) {
@@ -138,6 +210,8 @@ function listenAuthCodeAction() {
     authCodeListened = true
   }
 }
+
+
 
 // 接收pageScript xhr传来的信息
 window.addEventListener('xhr', function (event) {
